@@ -48,6 +48,7 @@ CXXFLAGS += -fdiagnostics-color=always      # use color in diagnostics
 CXXFLAGS += -std=c++20                      # use C++20 standard
 CXXFLAGS += -Os                             # optimize for size
 CXXFLAGS += -flto                           # enable whole program Link Time Optimization (LTO)
+CXXFLAGS += -ffat-lto-objects               # generate a fat LTO object that has both a true object and a discardable IR section
 CXXFLAGS += -m64                            # generate code for the x86-64 architecture
 CXXFLAGS += -fno-stack-protector            # disable stack protection
 CXXFLAGS += -mno-stack-arg-probe            # disable stack probing
@@ -64,6 +65,7 @@ CXXFLAGS += -fpack-struct=8                 # specify maximum alignment for stru
 CXXFLAGS += -fms-extensions                 # accept some non-standard constructs used in Microsoft header files
 CXXFLAGS += -fno-rtti                       # disable run-time type information
 CXXFLAGS += -fomit-frame-pointer            # omit the frame pointer in functions that don't need one
+CXXFLAGS += -masm=intel                     # output assembly instructions using selected dialect
 CXXFLAGS += -v                              # enable verbose mode
 
 # Extra flags to give to the compiler when they are supposed to invoke the linker
@@ -126,6 +128,7 @@ Temp/%_x64.obj: Src/%.cpp
 	@ echo "[*] compiling C/C++ code into COFF file..."
 	@ mkdir -p $(dir $@)
 	@ $(CXX) $(CPPFLAGS) $(CXXFLAGS) $< -o $@
+	@ objdump --disassemble --disassembler-options=intel --reloc --wide --no-addresses --no-show-raw-insn $@ > $@.disasm
 	@ echo "[+] done."
 
 Temp/%_x64.obj: Src/%.rc
@@ -141,4 +144,5 @@ clean:
 	@ find . -name "*.obj" -type f -printf "removed '%f'\n" -delete
 	@ find . -name "*.dll" -type f -printf "removed '%f'\n" -delete
 	@ find . -name "*.map" -type f -printf "removed '%f'\n" -delete
+	@ find . -name "*.disasm" -type f -printf "removed '%f'\n" -delete
 	@ echo "[+] done."
