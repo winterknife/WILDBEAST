@@ -20,6 +20,7 @@
 # 19. https://www.incredibuild.com/blog/compiling-with-clang-optimization-flags
 # 20. https://clang.llvm.org/docs/genindex.html
 # 21. https://sourceware.org/binutils/docs/ld/WIN32.html
+# 22. https://www.man7.org/linux/man-pages/man1/objdump.1.html
 
 # Project name
 PROJECT := MessageBox
