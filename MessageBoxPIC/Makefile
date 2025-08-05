@@ -22,6 +22,7 @@
 # 21. https://sourceware.org/binutils/docs/ld/WIN32.html
 # 22. https://www.man7.org/linux/man-pages/man1/objdump.1.html
 # 23. https://www.man7.org/linux/man-pages/man1/objcopy.1.html
+# 24. https://stackoverflow.com/questions/2214575/passing-arguments-to-make-run/14061796#14061796
 
 # Project name
 PROJECT := MessageBox
@@ -73,14 +74,31 @@ CXXFLAGS += -v                              # enable verbose mode
 # Extra flags to give to the compiler when they are supposed to invoke the linker
 LDFLAGS := -fuse-ld=bfd                     # use the bfd linker instead of the default linker
 LDFLAGS += -nostdlib                        # do not use the standard system startup files or libraries when linking
+ifeq (pic,$(firstword $(MAKECMDGOALS)))
 LDFLAGS += -Wl,--entry=PicEntry             # specify the program entry point
+else ifeq (exe,$(firstword $(MAKECMDGOALS)))
+LDFLAGS += -Wl,--entry=ExeEntry             # specify the program entry point
+else ifeq (dll,$(firstword $(MAKECMDGOALS)))
+LDFLAGS += -Wl,--entry=DllEntry             # specify the program entry point
+LDFLAGS += -shared                          # create a DLL instead of a regular executable
+LDFLAGS += -Wl,--dll                        # create a DLL instead of a regular executable
+LDFLAGS += -Wl,--exclude-all-symbols        # specify that no symbols should be automatically exported
+endif
 LDFLAGS += -Wl,--subsystem=windows:6.1      # specify the subsystem and the subsystem version targeted by the executable
 LDFLAGS += -Wl,--dynamicbase                # use ASLR
 LDFLAGS += -Wl,--high-entropy-va            # use HEASLR
+ifeq (dll,$(firstword $(MAKECMDGOALS)))
+LDFLAGS += -Wl,--image-base=0x180000000     # set the base address for the program
+else
 LDFLAGS += -Wl,--image-base=0x140000000     # set the base address for the program
+endif
 LDFLAGS += -Wl,--nxcompat                   # indicate that the executable is compatible with DEP
 LDFLAGS += -Wl,--no-seh                     # the image does not use SEH
+ifeq (dll,$(firstword $(MAKECMDGOALS)))
+LDFLAGS += -Wl,--disable-tsaware            # the image isn't Terminal Server aware
+else
 LDFLAGS += -Wl,--tsaware                    # the image is Terminal Server aware
+endif
 LDFLAGS += -Wl,--no-insert-timestamp        # suppress generation of the PE file header timestamp
 LDFLAGS += -Wl,--strip-all                  # remove all symbol table and relocation information from the executable
 LDFLAGS += -Wl,--gc-sections                # enable garbage collection of unused input sections
@@ -109,16 +127,31 @@ OBJECTS64 := $(patsubst Src/%.cpp, Temp/%_x64.obj, ${SOURCES})
 OBJECTS64 += $(patsubst Src/%.rc, Temp/%_x64.obj, ${RESOURCES})
 
 # Default target
-.DEFAULT_GOAL := pic
+.DEFAULT_GOAL := none
 
 # PIC target
 .PHONY: pic
 pic: Bin/$(PROJECT)_x64.bin
 
+# DLL target
+.PHONY: dll
+dll: Bin/$(PROJECT)_x64.dll
+
+# EXE target
+.PHONY: exe
+exe: Bin/$(PROJECT)_x64.exe
+
 # Build PIC (x64)
 Bin/$(PROJECT)_x64.bin: Bin/$(PROJECT)_x64.exe
 	@ echo "[*] extracting .text section from PE file..."
 	@ objcopy --target=pei-x86-64 --dump-section .text=$@ $<
+	@ echo "[+] done."
+
+# Build DLL (x64)
+Bin/$(PROJECT)_x64.dll: $(OBJECTS64)
+	@ echo "[*] linking COFF file(s) into PE file..."
+	@ mkdir -p $(dir $@)
+	@ $(CXX) $(LDFLAGS) $^ $(LDLIBS) -o $@
 	@ echo "[+] done."
 
 # Build EXE (x64)
@@ -148,6 +181,7 @@ clean:
 	@ echo "[*] cleaning up..."
 	@ find . -name "*.obj" -type f -printf "removed '%f'\n" -delete
 	@ find . -name "*.exe" -type f -printf "removed '%f'\n" -delete
+	@ find . -name "*.dll" -type f -printf "removed '%f'\n" -delete
 	@ find . -name "*.bin" -type f -printf "removed '%f'\n" -delete
 	@ find . -name "*.map" -type f -printf "removed '%f'\n" -delete
 	@ find . -name "*.disasm" -type f -printf "removed '%f'\n" -delete
