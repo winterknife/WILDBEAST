@@ -23,6 +23,7 @@
 # 22. https://www.man7.org/linux/man-pages/man1/objdump.1.html
 # 23. https://www.man7.org/linux/man-pages/man1/objcopy.1.html
 # 24. https://stackoverflow.com/questions/2214575/passing-arguments-to-make-run/14061796#14061796
+# 25. https://dev.to/deciduously/how-to-make-a-makefile-1dep/
 
 # Project name
 PROJECT := MessageBox
@@ -93,7 +94,11 @@ else
 LDFLAGS += -Wl,--image-base=0x140000000     # set the base address for the program
 endif
 LDFLAGS += -Wl,--nxcompat                   # indicate that the executable is compatible with DEP
+ifeq (pic,$(firstword $(MAKECMDGOALS)))
 LDFLAGS += -Wl,--no-seh                     # the image does not use SEH
+else
+LDFLAGS += -Wl,--disable-no-seh             # the image uses SEH
+endif
 ifeq (dll,$(firstword $(MAKECMDGOALS)))
 LDFLAGS += -Wl,--disable-tsaware            # the image isn't Terminal Server aware
 else
@@ -127,7 +132,12 @@ OBJECTS64 := $(patsubst Src/%.cpp, Temp/%_x64.obj, ${SOURCES})
 OBJECTS64 += $(patsubst Src/%.rc, Temp/%_x64.obj, ${RESOURCES})
 
 # Default target
-.DEFAULT_GOAL := none
+.DEFAULT_GOAL := help
+
+# Display help
+.PHONY: help
+help:
+	@ echo "[*] usage: make {exe|dll|pic|clean|help}"
 
 # PIC target
 .PHONY: pic
