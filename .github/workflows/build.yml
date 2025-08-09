@@ -24,9 +24,22 @@ jobs:
         cd MessageBoxEXE/
         make clean
         make exe
+    - name: Build DLL
+      run: |
+        cd MessageBoxDLL/
+        make clean
+        make dll
+    - name: Build PIC
+      run: |
+        cd MessageBoxPIC/
+        make clean
+        make pic
     - name: 'Upload artifacts'
       uses: actions/upload-artifact@v4
       with:
-        name: EXE
-        path: MessageBoxEXE/Bin/MessageBox_x64.exe
+        name: MessageBox
+        path: |
+          MessageBoxEXE/Bin/MessageBox_x64.exe
+          MessageBoxDLL/Bin/MessageBox_x64.dll
+          MessageBoxPIC/Bin/MessageBox_x64.bin
         retention-days: 7
