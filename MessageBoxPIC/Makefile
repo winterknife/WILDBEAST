@@ -33,7 +33,7 @@ MAKEFLAGS += --no-builtin-rules     # eliminate use of the built-in implicit rul
 MAKEFLAGS += --no-builtin-variables # eliminate use of the built-in rule-specific variables
 
 # Program for compiling C++ programs
-CXX = g++
+CXX = gcc
 
 # Extra flags to give to the C preprocessor and programs that use it
 CPPFLAGS := $(addprefix -I,Inc) # Specify the directory to be searched for header files during preprocessing
@@ -44,7 +44,7 @@ CXXFLAGS += -Wall                           # enable all the warnings
 CXXFLAGS += -Wextra                         # enable some extra warnings
 CXXFLAGS += -Werror                         # turn all warnings into errors
 CXXFLAGS += -Wshadow                        # issue a warning when a variable declaration hides a previous declaration
-CXXFLAGS += -Wpedantic                      # issue all the warnings demanded by strict ISO C and ISO C++
+CXXFLAGS += -pedantic-errors                # disable compiler extensions
 CXXFLAGS += -Wconversion                    # warn for implicit conversions that may alter a value
 CXXFLAGS += -Wundef                         # warn if an undefined identifier is evaluated in an #if directive
 CXXFLAGS += -Wpadded                        # warn if padding is added to a structure due to alignment requirements
@@ -155,6 +155,7 @@ exe: Bin/$(PROJECT)_x64.exe
 Bin/$(PROJECT)_x64.bin: Bin/$(PROJECT)_x64.exe
 	@ echo "[*] extracting .text section from PE file..."
 	@ objcopy --target=pei-x86-64 --dump-section .text=$@ $<
+	@ xxd -include -u $@ $(dir $@)/Shellcode.h
 	@ echo "[+] done."
 
 # Build DLL (x64)
