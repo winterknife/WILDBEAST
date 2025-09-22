@@ -117,9 +117,11 @@ LDFLAGS += -Wl,-static                      # do not link against shared librari
 LDFLAGS += -Wl,--verbose                    # enable verbose mode
 
 # Library flags or names given to the compiler when they are supposed to invoke the linker
+ifneq (pic,$(firstword $(MAKECMDGOALS)))
 LDLIBS := -lkernel32 # search kernel32 import library when linking
 LDLIBS += -luser32   # search user32 import library when linking
 LDLIBS += -lmsvcrt   # search msvcrt import library when linking
+endif
 
 # Source files
 SOURCES := $(wildcard Src/*.cpp)
