@@ -23,3 +23,9 @@ C:\msys64\usr\bin\bash -lc 'make clean && make {exe|dll|pic}'
 ## CI BUILD
 
 [build.yml](.github/workflows/build.yml)
+
+## VIRUSTOTAL
+
+[MessageBox_x64.exe](https://www.virustotal.com/gui/file/b7548b5557cd281bf286a3fd7d48acb36483ee2070f5986ae31240b51d5da328/)
+
+[MessageBox_x64.dll](https://www.virustotal.com/gui/file/17b10362d35170fa059c622956e3e0f88b0d03cb3ae4dc4720fdf0db3fe3160b/)

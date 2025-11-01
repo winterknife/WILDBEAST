@@ -43,7 +43,4 @@ jobs:
           MessageBoxDLL/Bin/MessageBox_x64.dll
           MessageBoxPIC/Bin/MessageBox_x64.bin
           MessageBoxPIC/Bin/Shellcode.h
-
         retention-days: 7
-
-
