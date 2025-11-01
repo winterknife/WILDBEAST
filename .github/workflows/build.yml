@@ -18,7 +18,7 @@ jobs:
       with:
         msystem: MINGW64
         update: true
-        install: base-devel mingw-w64-x86_64-toolchain
+        install: base-devel mingw-w64-x86_64-toolchain xxd
     - name: Build EXE
       run: |
         cd MessageBoxEXE/
@@ -42,4 +42,5 @@ jobs:
           MessageBoxEXE/Bin/MessageBox_x64.exe
           MessageBoxDLL/Bin/MessageBox_x64.dll
           MessageBoxPIC/Bin/MessageBox_x64.bin
+
         retention-days: 7
